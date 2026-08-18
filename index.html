@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kelelawar Penyelamat Bola - Bat Ball Rescuer</title>
+  <meta name="description" content="Game arcade seru Kelelawar Penyelamat Bola! Kendalikan kelelawar, gunakan gelombang sonar, pantulkan dan selamatkan bola-bola energi ke portal kristal gua.">
+  <meta name="theme-color" content="#080612">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Ambient Cavern Atmosphere Background -->
+  <div class="cave-ambient"></div>
+
+  <!-- Game Wrapper -->
+  <div class="game-wrapper">
+    <div class="canvas-container" id="canvasContainer">
+      <!-- HTML5 Canvas -->
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Active Power-ups HUD Bar -->
+      <div class="powerup-bar" id="powerupBar"></div>
+
+      <!-- In-Game HUD Overlay -->
+      <div class="hud-overlay">
+        <!-- Stats Group Left -->
+        <div class="hud-group">
+          <div class="hud-card">
+            <span class="hud-icon">🏆</span>
+            <div class="hud-info">
+              <span class="hud-label">Skor</span>
+              <span class="hud-value" id="scoreVal">0</span>
+            </div>
+          </div>
+          <div class="hud-card">
+            <span class="hud-icon">⭐</span>
+            <div class="hud-info">
+              <span class="hud-label">Terbaik</span>
+              <span class="hud-value" id="highScoreVal">0</span>
+            </div>
+          </div>
+          <div class="hud-card">
+            <span class="hud-icon">❤️</span>
+            <div class="hud-info">
+              <span class="hud-label">Nyawa</span>
+              <span class="hud-value" id="livesVal">❤️❤️❤️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Group Right -->
+        <div class="hud-group">
+          <!-- Sonar Energy Bar -->
+          <div class="hud-card">
+            <span class="hud-icon">🔊</span>
+            <div class="hud-info">
+              <span class="hud-label">Sonar</span>
+              <div class="sonar-container">
+                <div class="sonar-bar-bg">
+                  <div class="sonar-bar-fill" id="sonarBarFill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hud-card">
+            <span class="hud-icon">🌌</span>
+            <div class="hud-info">
+              <span class="hud-label">Level</span>
+              <span class="hud-value" id="levelVal">1</span>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <button class="hud-btn" id="muteBtn" title="Suara Off/On">🔊</button>
+          <button class="hud-btn" id="pauseBtn" title="Jeda Game">⏸️</button>
+        </div>
+      </div>
+
+      <!-- Start Screen Menu Overlay -->
+      <div class="overlay-screen" id="menuOverlay">
+        <div class="modal-card">
+          <div class="game-title">🦇 Kelelawar Penyelamat</div>
+          <p class="game-subtitle">
+            Selamatkan bola-bola energi magis yang jatuh ke dalam jurang gua! Gunakan gelombang sonar & pantulkan bola ke portal kristal penyelamat.
+          </p>
+
+          <!-- Mode Selector -->
+          <div class="mode-selector">
+            <button class="mode-btn active" data-mode="arcade">
+              <div class="mode-info">
+                <h4>Mode Arcade Penyelamatan</h4>
+                <p>Pantulkan bola ke portal kristal untuk mengumpulkan skor & power-up!</p>
+              </div>
+              <span class="mode-icon">🔮</span>
+            </button>
+
+            <button class="mode-btn" data-mode="survival">
+              <div class="mode-info">
+                <h4>Mode Survival Multiball</h4>
+                <p>Kelola banyak bola yang jatuh lebih cepat dalam waktu bersamaan!</p>
+              </div>
+              <span class="mode-icon">💥</span>
+            </button>
+
+            <button class="mode-btn" data-mode="challenge">
+              <div class="mode-info">
+                <h4>Mode Rintangan Cavern</h4>
+                <p>Hindari rintangan batu stalaktit tajam yang jatuh dari atap gua!</p>
+              </div>
+              <span class="mode-icon">⛰️</span>
+            </button>
+          </div>
+
+          <!-- Controls Guide -->
+          <div class="guide-box">
+            <div class="guide-item">
+              <span class="guide-key">Mouse / Touch</span>
+              <span>Geser kelelawar ke kiri & kanan</span>
+            </div>
+            <div class="guide-item">
+              <span class="guide-key">Keyboard</span>
+              <span>Gunakan Tombol <span class="guide-key">←</span> <span class="guide-key">→</span> atau <span class="guide-key">A</span> <span class="guide-key">D</span></span>
+            </div>
+            <div class="guide-item">
+              <span class="guide-key">Spasi / Ketuk</span>
+              <span>Tembakkan **Gelombang Sonar** untuk memantulkan/menarik bola</span>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <button class="btn-primary" id="startBtn">
+            <span>Mulai Petualangan</span> 🚀
+          </button>
+        </div>
+      </div>
+
+      <!-- Pause Menu Overlay -->
+      <div class="overlay-screen hidden" id="pauseOverlay">
+        <div class="modal-card">
+          <div class="game-title">⏸️ Game Dijeda</div>
+          <p class="game-subtitle">Istirahat sejenak sebelum melanjutkan penyelamatan bola-bola magis!</p>
+          <button class="btn-primary" id="resumeBtn">Lanjutkan Permainan ▶️</button>
+        </div>
+      </div>
+
+      <!-- Game Over Overlay -->
+      <div class="overlay-screen hidden" id="gameOverOverlay">
+        <div class="modal-card">
+          <div class="game-title" style="background: linear-gradient(135deg, #ff007f 0%, #ffc107 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            💀 Game Selesai
+          </div>
+          <p class="game-subtitle">Semua bola telah jatuh ke jurang gua. Tarik napas dan coba lagi!</p>
+
+          <div class="stats-grid">
+            <div class="stat-box">
+              <span class="stat-num" id="finalScore">0</span>
+              <span class="stat-title">Skor Akhir</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="finalHighScore">0</span>
+              <span class="stat-title">Skor Tertinggi</span>
+            </div>
+            <div class="stat-box" style="grid-column: span 2;">
+              <span class="stat-num" id="finalSaved" style="color: #00ff88;">0</span>
+              <span class="stat-title">Bola Diselamatkan</span>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="restartBtn">
+            <span>Main Lagi</span> 🔄
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/bat.js"></script>
+  <script src="js/ball.js"></script>
+  <script src="js/obstacles.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
